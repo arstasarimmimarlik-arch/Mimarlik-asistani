@@ -111,7 +111,8 @@ export function validateInput(text, maxLength = 5000) {
 // API Key format doğrulama
 export function validateApiKey(key) {
   if (!key) return false;
-  return key.startsWith('sk-ant-');
+  // sk-ant- (eski format) veya sk- (yeni format) kabul et
+  return key.startsWith('sk-');
 }
 
 // Supabase URL format doğrulama
