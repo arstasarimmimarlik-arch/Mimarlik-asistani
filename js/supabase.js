@@ -111,7 +111,8 @@ export async function searchSources(query) {
         // Bölüm başlığında eşleşme daha değerli
         if (sectionLower.includes(kw)) score += 3;
         // İçerikte eşleşme sayısı
-        const matches = (contentLower.match(new RegExp(kw, 'g')) || []).length;
+        const escapedKw = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const matches = (contentLower.match(new RegExp(escapedKw, 'g')) || []).length;
         score += matches;
       }
 

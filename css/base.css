@@ -13,11 +13,12 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: var(--bg);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   font-size: var(--font-size-base);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
 #app {
@@ -32,17 +33,10 @@ html, body {
   overflow: hidden;
 }
 
-/* Scrollbar özelleştirme */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: var(--radius-full);
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-full); }
 
 /* Seçim rengi */
 ::selection {
@@ -55,16 +49,8 @@ html, body {
   outline: 2px solid var(--green);
   outline-offset: 2px;
 }
+button:focus:not(:focus-visible) { outline: none; }
 
-button:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* Genel link stili */
-a {
-  color: var(--green-dark);
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-}
+/* Link */
+a { color: var(--green-dark); text-decoration: none; }
+a:hover { text-decoration: underline; }

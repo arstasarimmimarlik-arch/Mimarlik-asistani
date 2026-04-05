@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Mimar AI">
   <meta name="description" content="Yapay zeka destekli mimarlık asistanı - Neufert, detay çizimi, yönetmelik ve daha fazlası">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src https://api.anthropic.com https://*.supabase.co; img-src 'self' data:; font-src 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.anthropic.com https://*.supabase.co; img-src 'self' data: https://play-lh.googleusercontent.com https://www.arstasarimmimarlik.com https://*.csb.gov.tr https://*.tkgm.gov.tr; font-src 'self';">
   <title>Mimarlık AI Asistanı</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
@@ -97,7 +97,7 @@
 
         <div class="setting-label">Dil / Language</div>
         <div class="lang-selector">
-          <button class="lang-btn active" data-lang="tr">🇹��� Türkçe</button>
+          <button class="lang-btn active" data-lang="tr">🇹🇷 Türkçe</button>
           <button class="lang-btn" data-lang="en">🇬🇧 English</button>
         </div>
       </div>
@@ -113,8 +113,11 @@
 
       <!-- Hakkında -->
       <div class="about-section">
-        <div class="about-version">Mimarlık AI Asistanı <span id="app-version">v2.0.0</span></div>
-        <div>Tüm hakları saklıdır.</div>
+        <div class="about-version">Mimarlık AI Asistanı <span id="app-version">v2.0.1</span></div>
+        <div style="margin-top:8px;">
+          <a href="https://www.arstasarimmimarlik.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;font-weight:600;letter-spacing:0.05em;">ARS TASARIM MİMARLIK</a>
+        </div>
+        <div style="margin-top:4px;font-size:11px;">Ayrıntıdan Bütüne, Bilgiden Tasarıma.</div>
       </div>
     </div>
   </div>
@@ -153,7 +156,9 @@
 
   <!-- ========== Header ========== -->
   <div id="header" role="banner">
-    <div id="header-avatar" aria-hidden="true">🏛</div>
+    <button id="home-btn" aria-label="Ana Sayfa" title="Ana Sayfa" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;">
+      <div id="header-avatar"><img src="./assets/icons/app-logo.svg" alt="" width="22" height="22"></div>
+    </button>
     <div id="header-text">
       <div id="header-title">Mimarlık AI Asistanı</div>
       <div id="header-sub">
@@ -161,6 +166,8 @@
         <span>Detay çizimi · Eğitim · Neufert</span>
       </div>
     </div>
+    <a class="header-btn header-app-btn" href="https://santiyem.csb.gov.tr/" target="_blank" rel="noopener noreferrer" aria-label="Şantiyem" title="Şantiyem"><img src="https://play-lh.googleusercontent.com/lcISzZjxZeWcci-zwRNwe91q2ohZukYiSejVSwqTrgjIalv55FykNbfNurh_wT9c4w=w240-h480-rw" alt="Şantiyem" width="24" height="24" style="border-radius:6px"></a>
+    <a class="header-btn header-app-btn" href="https://parselsorgu.tkgm.gov.tr/" target="_blank" rel="noopener noreferrer" aria-label="Parsel Sorgu" title="Parsel Sorgu"><img src="https://play-lh.googleusercontent.com/RftNurm9mb_3SRRp-P7aQVI3Xsup6JPIvSUurUXWvCn5vSDQGA-UJVwQsSk8WRviSk0=w240-h480-rw" alt="Parsel Sorgu" width="24" height="24" style="border-radius:6px"></a>
     <button class="header-btn" id="history-btn" aria-label="Sohbet Geçmişi" title="Geçmiş">📋</button>
     <button class="header-btn" id="favorites-btn" aria-label="Favoriler" title="Favoriler">⭐</button>
     <button class="header-btn" id="settings-btn" aria-label="Ayarlar" title="Ayarlar">⚙</button>
@@ -201,6 +208,17 @@
   </div>
 
 </div>
+
+<!-- Eski SW cache'lerini temizle -->
+<script>
+if ('serviceWorker' in navigator) {
+  caches.keys().then(function(keys) {
+    keys.forEach(function(k) {
+      if (k !== 'mimarlik-ai-v3.0.0') caches.delete(k);
+    });
+  });
+}
+</script>
 
 <!-- Ana uygulama modülü -->
 <script type="module" src="./js/app.js"></script>

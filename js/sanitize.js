@@ -43,7 +43,9 @@ function isSafeUrl(url) {
 export function sanitizeHtml(html) {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const clean = sanitizeNode(doc.body);
-  return clean.innerHTML;
+  const wrapper = document.createElement('div');
+  wrapper.appendChild(clean);
+  return wrapper.innerHTML;
 }
 
 function sanitizeNode(node) {

@@ -3,7 +3,7 @@
    ======================================== */
 
 import { exportChatTxt, exportChatPdf } from './history.js';
-import { showToast } from './app.js';
+import { showToast } from './toast.js';
 import { t } from './i18n.js';
 
 // TXT olarak indir

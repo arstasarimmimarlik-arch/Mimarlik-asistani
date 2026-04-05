@@ -1,31 +1,30 @@
 /* ========================================
-   Sohbet Mesajları & Balonlar
+   Sohbet — Profesyonel Tasarım
    ======================================== */
 
 #messages {
   flex: 1;
   overflow-y: auto;
-  padding: 14px;
+  padding: var(--space-lg);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-md);
   scroll-behavior: smooth;
   position: relative;
+  background: var(--bg);
 }
 
 /* Mesaj Satırı */
 .msg {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   align-items: flex-end;
   animation: fadeUp 0.2s ease;
 }
-.msg.user {
-  flex-direction: row-reverse;
-}
+.msg.user { flex-direction: row-reverse; }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -33,60 +32,59 @@
 .avatar {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   flex-shrink: 0;
+  letter-spacing: 0;
 }
 .ai-av {
-  background: var(--green-light);
-  color: var(--green-dark);
+  background: var(--avatar-ai-bg);
+  color: var(--avatar-ai-text);
 }
 .user-av {
-  background: #DBEAFE;
-  color: #1E40AF;
-}
-
-[data-theme="dark"] .user-av {
-  background: #1E3A5F;
-  color: #93C5FD;
+  background: var(--avatar-user-bg);
+  color: var(--avatar-user-text);
 }
 
 /* Mesaj Balonu */
 .bubble {
   max-width: 82%;
-  padding: 10px 14px;
-  border-radius: 18px;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius);
   font-size: var(--font-size-base);
-  line-height: 1.55;
+  line-height: 1.6;
   word-break: break-word;
   position: relative;
 }
 .msg.ai .bubble {
   background: var(--ai-bubble);
   color: var(--ai-bubble-text);
-  border-bottom-left-radius: 4px;
+  border-bottom-left-radius: var(--radius-xs);
+  border: 1px solid var(--border);
 }
 .msg.user .bubble {
   background: var(--user-bubble);
   color: var(--user-bubble-text);
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: var(--radius-xs);
 }
 
-/* Mesaj Üzerindeki Aksiyonlar */
+/* Mesaj Aksiyonları */
 .msg-actions {
-  display: none;
-  gap: 4px;
-  margin-top: 4px;
+  display: flex;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
   padding-left: 36px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
 }
 .msg:hover .msg-actions,
-.msg:focus-within .msg-actions {
-  display: flex;
-}
+.msg:focus-within .msg-actions,
+.msg-actions:focus-within { opacity: 1; }
+@media (hover: none) { .msg-actions { opacity: 1; } }
 .msg.user .msg-actions {
   padding-left: 0;
   padding-right: 36px;
@@ -96,50 +94,52 @@
 .msg-action-btn {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--white);
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 12px;
   transition: all var(--transition-fast);
 }
 .msg-action-btn:hover {
-  background: var(--green-light);
-  color: var(--green-dark);
-  border-color: var(--green);
+  background: var(--bg-secondary);
+  color: var(--text);
+  border-color: var(--border-strong);
 }
 
-/* Chips / Öneri Soruları */
+/* Chips */
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
   padding-left: 36px;
 }
-
 .chip {
   font-size: var(--font-size-sm);
-  padding: 6px 12px;
-  border-radius: 16px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--chip-border);
   color: var(--chip-text);
   background: var(--chip-bg);
   cursor: pointer;
   font-family: inherit;
   transition: all var(--transition-fast);
-  min-height: var(--touch-target);
+  min-height: 36px;
   display: flex;
   align-items: center;
+  font-weight: 500;
 }
 .chip:hover {
-  background: var(--green);
-  color: white;
-  border-color: var(--green);
+  background: #1A1A1A;
+  color: #C9A96E;
+  border-color: #1A1A1A;
 }
 
 /* Kaynak Badge */
@@ -147,27 +147,30 @@
   font-size: 11px;
   background: var(--source-bg);
   color: var(--source-text);
-  padding: 2px 8px;
-  border-radius: 10px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
   display: inline-block;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-sm);
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
-/* Yazıyor Animasyonu */
+/* Typing */
 .typing-bubble {
   background: var(--ai-bubble);
-  padding: 12px 16px;
-  border-radius: 18px;
-  border-bottom-left-radius: 4px;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius);
+  border-bottom-left-radius: var(--radius-xs);
   display: flex;
-  gap: 4px;
+  gap: 5px;
   align-items: center;
+  border: 1px solid var(--border);
 }
 .dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--text-secondary);
+  background: var(--text-tertiary);
   animation: bounce 1.2s infinite;
 }
 .dot:nth-child(2) { animation-delay: 0.2s; }
@@ -175,104 +178,154 @@
 
 @keyframes bounce {
   0%, 60%, 100% { transform: translateY(0); }
-  30% { transform: translateY(-5px); }
+  30% { transform: translateY(-4px); }
 }
 
-/* Favori Yıldız */
+/* Favori */
 .msg-action-btn.favorited {
-  color: #F59E0B;
-  border-color: #F59E0B;
-  background: #FEF3C7;
+  color: #D97706;
+  border-color: #D97706;
+  background: #FFFBEB;
+}
+[data-theme="dark"] .msg-action-btn.favorited {
+  background: #2A2518;
+  border-color: #B7791F;
+  color: #F6E05E;
 }
 
 /* Scroll to Bottom */
 #scroll-bottom {
   position: absolute;
-  bottom: 16px;
-  right: 16px;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
   background: var(--white);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-md);
   cursor: pointer;
-  display: none;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  color: var(--text-secondary);
+  font-size: 14px;
+  color: var(--text-tertiary);
   z-index: 5;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-normal);
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
 }
 #scroll-bottom:hover {
-  background: var(--green-light);
-  color: var(--green-dark);
+  background: var(--bg-secondary);
+  color: var(--text);
 }
 #scroll-bottom.visible {
-  display: flex;
+  opacity: 1;
+  pointer-events: auto;
 }
 #scroll-bottom .badge {
   position: absolute;
   top: -4px;
   right: -4px;
-  background: var(--green);
+  background: var(--green-dark);
   color: white;
-  font-size: 10px;
-  width: 18px;
-  height: 18px;
+  font-size: 9px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 600;
 }
 
-/* Karşılama Kartları */
-.welcome-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 12px;
+/* Section Başlık */
+.welcome-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-left: 36px;
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-xs);
+}
+
+/* Uygulama & Konu Kartları */
+.welcome-apps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
   padding-left: 36px;
 }
-.welcome-card {
-  background: var(--bg);
+.welcome-app-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 10px;
-  cursor: pointer;
-  font-size: var(--font-size-sm);
+  text-decoration: none;
   color: var(--text);
   transition: all var(--transition-fast);
-  text-align: left;
+  min-height: 48px;
+  cursor: pointer;
   font-family: inherit;
+  text-align: left;
+  width: 100%;
 }
-.welcome-card:hover {
-  border-color: var(--green);
-  background: var(--green-light);
+.welcome-app-card:hover {
+  border-color: var(--border-strong);
+  background: var(--bg);
 }
-.welcome-card-icon {
+.welcome-app-card:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+.welcome-app-icon {
   font-size: 20px;
-  margin-bottom: 4px;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
 }
-.welcome-card-title {
+.welcome-app-info { flex: 1; min-width: 0; }
+.welcome-app-title {
   font-weight: 600;
-  font-size: 12px;
-  margin-bottom: 2px;
+  font-size: var(--font-size-base);
+  letter-spacing: -0.01em;
 }
-.welcome-card-desc {
-  font-size: 11px;
-  color: var(--text-secondary);
+.welcome-app-desc {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
   line-height: 1.3;
+  margin-top: 1px;
+}
+.welcome-app-arrow {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+  opacity: 0.5;
+}
+.welcome-app-card:hover .welcome-app-arrow {
+  transform: translateX(2px);
+  opacity: 1;
 }
 
-/* Durdur Butonu */
+/* Durdur */
 #stop-btn {
   display: none;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
   border-radius: var(--radius-full);
   border: 1px solid var(--border);
   background: var(--white);
@@ -287,6 +340,26 @@
   border-color: var(--toast-error);
   color: var(--toast-error);
 }
-#stop-btn.visible {
-  display: flex;
+#stop-btn.visible { display: flex; }
+
+/* Nasıl Kullanılır butonu */
+.welcome-guide-btn {
+  display: block;
+  width: 100%;
+  padding: var(--space-sm) var(--space-lg);
+  padding-left: 60px;
+  background: none;
+  border: none;
+  border-top: 1px dashed var(--border);
+  color: var(--accent);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+.welcome-guide-btn:hover {
+  background: var(--bg);
+  color: var(--text);
 }
