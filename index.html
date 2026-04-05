@@ -1,292 +1,209 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#0F6E56">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Mimar AI">
-<title>Mimarlık AI Asistanı</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  :root {
-    --green: #1D9E75;
-    --green-dark: #0F6E56;
-    --green-light: #E1F5EE;
-    --bg: #F7F7F5;
-    --white: #FFFFFF;
-    --text: #1A1A1A;
-    --text-secondary: #666;
-    --border: rgba(0,0,0,0.1);
-    --radius: 16px;
-    --radius-sm: 10px;
-  }
-  html, body { height: 100%; overflow: hidden; background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-  #app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; background: var(--white); position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.08); }
-  #header { background: var(--green-dark); color: white; padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-  #header-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  #header-text { flex: 1; }
-  #header-title { font-size: 15px; font-weight: 600; }
-  #header-sub { font-size: 11px; opacity: 0.75; margin-top: 1px; }
-  #settings-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-  #mode-bar { display: flex; gap: 6px; padding: 10px 14px; overflow-x: auto; border-bottom: 1px solid var(--border); flex-shrink: 0; scrollbar-width: none; }
-  #mode-bar::-webkit-scrollbar { display: none; }
-  .mode-btn { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; white-space: nowrap; font-family: inherit; transition: all 0.15s; }
-  .mode-btn.active { background: var(--green); border-color: var(--green); color: white; font-weight: 500; }
-  #messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
-  .msg { display: flex; gap: 8px; align-items: flex-end; animation: fadeUp 0.2s ease; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  .msg.user { flex-direction: row-reverse; }
-  .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
-  .ai-av { background: var(--green-light); color: var(--green-dark); }
-  .user-av { background: #DBEAFE; color: #1E40AF; }
-  .bubble { max-width: 82%; padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.55; word-break: break-word; }
-  .msg.ai .bubble { background: var(--bg); color: var(--text); border-bottom-left-radius: 4px; }
-  .msg.user .bubble { background: var(--green-dark); color: white; border-bottom-right-radius: 4px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; padding-left: 36px; }
-  .chip { font-size: 12px; padding: 6px 12px; border-radius: 16px; border: 1px solid var(--green); color: var(--green-dark); background: var(--green-light); cursor: pointer; font-family: inherit; }
-  .typing-bubble { background: var(--bg); padding: 12px 16px; border-radius: 18px; border-bottom-left-radius: 4px; display: flex; gap: 4px; align-items: center; }
-  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-secondary); animation: bounce 1.2s infinite; }
-  .dot:nth-child(2) { animation-delay: 0.2s; }
-  .dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
-  #input-wrap { padding: 10px 14px; padding-bottom: max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0; background: var(--white); }
-  #user-input { flex: 1; border: 1.5px solid var(--border); border-radius: 22px; padding: 10px 16px; font-size: 15px; font-family: inherit; resize: none; background: var(--bg); color: var(--text); min-height: 44px; max-height: 110px; outline: none; line-height: 1.4; }
-  #user-input:focus { border-color: var(--green); }
-  #send-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--green); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s, transform 0.1s; }
-  #send-btn:active { transform: scale(0.93); background: var(--green-dark); }
-  #send-btn svg { width: 18px; height: 18px; fill: white; }
-  #send-btn:disabled { background: var(--border); }
-  .source-badge { font-size: 11px; background: #E1F5EE; color: #0F6E56; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-bottom: 4px; }
-  #settings-panel { position: absolute; inset: 0; background: var(--white); z-index: 10; display: none; flex-direction: column; }
-  #settings-panel.open { display: flex; }
-  #settings-header { background: var(--green-dark); color: white; padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top)); display: flex; align-items: center; gap: 12px; }
-  #back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 0; }
-  #settings-body { padding: 20px 16px; flex: 1; overflow-y: auto; }
-  .setting-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; margin-top: 16px; }
-  .setting-input { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 14px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; }
-  .setting-input:focus { border-color: var(--green); }
-  .save-btn { width: 100%; padding: 14px; background: var(--green); color: white; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 20px; }
-  .info-box { background: #FFF8E1; border: 1px solid #FFE082; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; color: #5D4037; line-height: 1.5; margin-top: 16px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0F6E56">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mimar AI">
+  <meta name="description" content="Yapay zeka destekli mimarlık asistanı - Neufert, detay çizimi, yönetmelik ve daha fazlası">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src https://api.anthropic.com https://*.supabase.co; img-src 'self' data:; font-src 'self';">
+  <title>Mimarlık AI Asistanı</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/header.css">
+  <link rel="stylesheet" href="./css/chat.css">
+  <link rel="stylesheet" href="./css/input.css">
+  <link rel="stylesheet" href="./css/settings.css">
+  <link rel="stylesheet" href="./css/markdown.css">
+  <link rel="stylesheet" href="./css/modal.css">
+  <link rel="stylesheet" href="./css/responsive.css">
 </head>
 <body>
+
+<!-- Toast Container -->
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
 <div id="app">
-  <div id="settings-panel">
+
+  <!-- ========== Onboarding ========== -->
+  <div id="onboarding" role="dialog" aria-modal="true" aria-label="Hoş Geldiniz">
+    <div class="onboarding-content">
+      <div class="onboarding-icon">🏛️</div>
+      <div class="onboarding-title">Mimarlık AI Asistanına Hoş Geldiniz</div>
+      <div class="onboarding-desc">Yapay zeka destekli mimarlık asistanınız ile projelerinizi hızlandırın.</div>
+    </div>
+    <div class="onboarding-dots">
+      <div class="onboarding-dot active"></div>
+      <div class="onboarding-dot"></div>
+      <div class="onboarding-dot"></div>
+    </div>
+    <div class="onboarding-actions">
+      <button class="onboarding-skip">Atla</button>
+      <button class="onboarding-next">İleri</button>
+    </div>
+  </div>
+
+  <!-- ========== Ayarlar Paneli ========== -->
+  <div id="settings-panel" role="dialog" aria-modal="true" aria-label="Ayarlar">
     <div id="settings-header">
-      <button id="back-btn" onclick="closeSettings()">←</button>
+      <button id="back-btn" aria-label="Geri">←</button>
       <span style="font-size:16px;font-weight:600;">Ayarlar</span>
     </div>
     <div id="settings-body">
-      <div class="setting-label">Anthropic API Key</div>
-      <input class="setting-input" id="api-key-input" type="password" placeholder="sk-ant-api03-...">
-      <div class="setting-label">Supabase URL</div>
-      <input class="setting-input" id="sb-url-input" type="text" placeholder="https://xxx.supabase.co">
-      <div class="setting-label">Supabase Anon Key</div>
-      <input class="setting-input" id="sb-key-input" type="password" placeholder="eyJhbGci...">
-      <button class="save-btn" onclick="saveSettings()">Kaydet</button>
-      <div class="info-box">⚠️ Tüm bilgiler bu cihazda yerel olarak saklanır. Kimseyle paylaşmayın.</div>
-    </div>
-  </div>
 
-  <div id="header">
-    <div id="header-avatar">🏛</div>
-    <div id="header-text">
-      <div id="header-title">Mimarlık AI Asistanı</div>
-      <div id="header-sub" id="db-status">Detay çizimi · Eğitim · Neufert</div>
-    </div>
-    <button id="settings-btn" onclick="openSettings()">⚙</button>
-  </div>
+      <!-- API Ayarları -->
+      <div class="setting-section">
+        <div class="setting-section-title">API Bağlantısı</div>
 
-  <div id="mode-bar">
-    <button class="mode-btn active" onclick="setMode('genel',this)">Genel</button>
-    <button class="mode-btn" onclick="setMode('detay',this)">Detay Çizimi</button>
-    <button class="mode-btn" onclick="setMode('malzeme',this)">Malzeme</button>
-    <button class="mode-btn" onclick="setMode('egitim',this)">Eğitim</button>
-    <button class="mode-btn" onclick="setMode('yonetmelik',this)">Yönetmelik</button>
-  </div>
+        <div class="setting-label">Anthropic API Key</div>
+        <input class="setting-input" id="api-key-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off">
+        <div class="setting-hint">sk-ant- ile başlamalıdır</div>
 
-  <div id="messages">
-    <div class="msg ai">
-      <div class="avatar ai-av">M</div>
-      <div>
-        <div class="bubble">Merhaba! Ben mimarlık yapay zeka asistanınım 👋<br><br>Neufert dahil kayıtlı kaynaklardan bilgi çekerek sorularınızı yanıtlayabilirim. Başlamak için ⚙ simgesine tıklayıp ayarları yapın.</div>
-        <div class="chips">
-          <button class="chip" onclick="quickSend('Yatak odası minimum kaç m² olmalı?')">Yatak odası ölçüsü</button>
-          <button class="chip" onclick="quickSend('Betonarme kolon-kiriş birleşim detayı nasıl çizilir?')">Kolon-kiriş detayı</button>
-          <button class="chip" onclick="quickSend('TBDY 2018 nedir?')">TBDY 2018</button>
+        <div class="setting-label">Supabase URL</div>
+        <input class="setting-input" id="sb-url-input" type="url" placeholder="https://xxx.supabase.co" autocomplete="off">
+        <div class="setting-hint">https://xxx.supabase.co formatında</div>
+
+        <div class="setting-label">Supabase Anon Key</div>
+        <input class="setting-input" id="sb-key-input" type="password" placeholder="eyJhbGci..." autocomplete="off">
+      </div>
+
+      <!-- Görünüm -->
+      <div class="setting-section">
+        <div class="setting-section-title">Görünüm</div>
+
+        <div class="setting-row">
+          <div>
+            <div class="setting-row-label">Karanlık Tema</div>
+            <div class="setting-row-desc">Koyu renkli arayüz</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="dark-mode-toggle">
+            <span class="toggle-slider"></span>
+          </label>
         </div>
+
+        <div class="setting-label">Yazı Boyutu</div>
+        <div class="fontsize-selector">
+          <button class="fontsize-btn" data-size="small">Küçük</button>
+          <button class="fontsize-btn active" data-size="normal">Normal</button>
+          <button class="fontsize-btn" data-size="large">Büyük</button>
+        </div>
+
+        <div class="setting-label">Dil / Language</div>
+        <div class="lang-selector">
+          <button class="lang-btn active" data-lang="tr">🇹��� Türkçe</button>
+          <button class="lang-btn" data-lang="en">🇬🇧 English</button>
+        </div>
+      </div>
+
+      <!-- Aksiyonlar -->
+      <div class="setting-section">
+        <button class="save-btn" id="save-settings-btn">Kaydet</button>
+        <button class="danger-btn" id="delete-apikey-btn">API Key'i Sil</button>
+        <button class="danger-btn" id="clear-all-btn" style="margin-top:8px">Tüm Verileri Sil</button>
+      </div>
+
+      <div class="info-box">⚠️ Tüm bilgiler bu cihazda yerel olarak saklanır. Kimseyle paylaşmayın.</div>
+
+      <!-- Hakkında -->
+      <div class="about-section">
+        <div class="about-version">Mimarlık AI Asistanı <span id="app-version">v2.0.0</span></div>
+        <div>Tüm hakları saklıdır.</div>
       </div>
     </div>
   </div>
 
+  <!-- ========== Sohbet Geçmişi Paneli ========== -->
+  <div id="history-panel" role="dialog" aria-modal="true" aria-label="Sohbet Geçmişi">
+    <div id="history-header">
+      <button id="history-back-btn" aria-label="Geri" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">←</button>
+      <span style="font-size:16px;font-weight:600;flex:1;">Sohbet Geçmişi</span>
+      <button id="new-chat-btn" aria-label="Yeni Sohbet" style="background:rgba(255,255,255,0.15);border:none;color:white;font-size:13px;padding:6px 14px;border-radius:20px;cursor:pointer;">+ Yeni</button>
+    </div>
+    <input id="history-search" type="search" placeholder="Sohbetlerde ara..." aria-label="Sohbet ara">
+    <div id="history-list" role="list"></div>
+  </div>
+
+  <!-- ========== Favoriler Paneli ========== -->
+  <div id="favorites-panel" role="dialog" aria-modal="true" aria-label="Favoriler">
+    <div style="background:var(--green-dark);color:white;padding:14px 16px;padding-top:max(14px,env(safe-area-inset-top));display:flex;align-items:center;gap:12px;">
+      <button id="favorites-back-btn" aria-label="Geri" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">←</button>
+      <span style="font-size:16px;font-weight:600;">Favoriler</span>
+    </div>
+    <div class="favorites-list" role="list" style="flex:1;overflow-y:auto;padding:0 16px;"></div>
+  </div>
+
+  <!-- ========== Confirm Modal ========== -->
+  <div id="confirm-modal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-title">Onay</div>
+      <div class="modal-desc">Bu işlemi yapmak istediğinize emin misiniz?</div>
+      <div class="modal-actions">
+        <button class="modal-cancel">İptal</button>
+        <button class="modal-confirm">Onayla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Header ========== -->
+  <div id="header" role="banner">
+    <div id="header-avatar" aria-hidden="true">🏛</div>
+    <div id="header-text">
+      <div id="header-title">Mimarlık AI Asistanı</div>
+      <div id="header-sub">
+        <span class="status-dot offline"></span>
+        <span>Detay çizimi · Eğitim · Neufert</span>
+      </div>
+    </div>
+    <button class="header-btn" id="history-btn" aria-label="Sohbet Geçmişi" title="Geçmiş">📋</button>
+    <button class="header-btn" id="favorites-btn" aria-label="Favoriler" title="Favoriler">⭐</button>
+    <button class="header-btn" id="settings-btn" aria-label="Ayarlar" title="Ayarlar">⚙</button>
+    <button class="header-btn" id="install-btn" aria-label="Uygulamayı Yükle" title="Yükle" style="display:none">📲</button>
+  </div>
+
+  <!-- ========== Mode Bar ========== -->
+  <div id="mode-bar" role="tablist" aria-label="Çalışma Modları"></div>
+
+  <!-- ========== Offline Banner ========== -->
+  <div id="offline-banner" role="alert">Çevrimdışı - İnternet bağlantısı bekleniyor</div>
+
+  <!-- ========== Mesajlar ========== -->
+  <div id="messages" role="log" aria-live="polite" aria-label="Sohbet mesajları">
+    <!-- Mesajlar JavaScript ile eklenir -->
+  </div>
+
+  <!-- ========== Scroll to Bottom ========== -->
+  <button id="scroll-bottom" aria-label="Aşağı kaydır">
+    ↓
+    <span class="badge" style="display:none">0</span>
+  </button>
+
+  <!-- ========== Durdur Butonu ========== -->
+  <button id="stop-btn" aria-label="Yanıtı durdur">
+    <span>■</span> Durdur
+  </button>
+
+  <!-- ========== Input ========== -->
   <div id="input-wrap">
+    <button id="mic-btn" aria-label="Sesli giriş" title="Sesli giriş">🎤</button>
     <textarea id="user-input" placeholder="Sorunuzu yazın..." rows="1"
-      oninput="autoResize(this)"
-      onkeydown="handleKey(event)"></textarea>
-    <button id="send-btn" onclick="sendMessage()">
-      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+      aria-label="Mesaj girin" maxlength="5000"></textarea>
+    <div id="char-count" aria-hidden="true"></div>
+    <button id="send-btn" aria-label="Mesaj gönder">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
     </button>
   </div>
+
 </div>
 
-<script>
-const MODES = {
-  genel: `Sen uzman bir mimar yapay zeka asistanısın. Türkçe yanıt ver. Mimarlık, yapı teknolojisi, detay çizimi, malzeme bilgisi, yapı fiziği ve Türkiye mimarlık pratiği hakkında derin bilgiye sahipsin. Yanıtlarını açık, pratik ve eyleme dönüştürülebilir şekilde ver. Sana verilen kaynak bilgisini öncelikli olarak kullan.`,
-  detay: `Sen uzman bir yapı detay mimarısın. Türkçe yanıt ver. AutoCAD ve SketchUp'ta çalışan mimarlar için pratik detay çizim rehberi ver. Katman sırası, malzeme isimleri, TS standartları ve somut ölçüler kullan. Sana verilen kaynak bilgisini öncelikli olarak kullan.`,
-  malzeme: `Sen uzman bir yapı malzemeleri ve sistemleri mimarısın. Türkçe yanıt ver. Malzeme seçimi, TS EN standartları, Türkiye piyasasında mevcut markalar ve uygulama detayları konularında bilgi ver. Sana verilen kaynak bilgisini öncelikli olarak kullan.`,
-  egitim: `Sen bir mimarlık öğretmeni/mentörüsün. Türkçe yanıt ver. Kavramları adım adım açıkla, örnekler ver. Sana verilen kaynak bilgisini öncelikli olarak kullan.`,
-  yonetmelik: `Sen Türk mimarlık mevzuatı uzmanısın. Türkçe yanıt ver. TBDY 2018, İmar Kanunu, BEP, Yangın Yönetmeliği hakkında detaylı bilgi ver. Sana verilen kaynak bilgisini öncelikli olarak kullan.`
-};
+<!-- Ana uygulama modülü -->
+<script type="module" src="./js/app.js"></script>
 
-let currentMode = 'genel';
-let history = [];
-
-function getSettings() {
-  return {
-    apiKey: localStorage.getItem('archiAIKey') || '',
-    sbUrl: localStorage.getItem('sb_url') || '',
-    sbKey: localStorage.getItem('sb_anon_key') || ''
-  };
-}
-
-function saveSettings() {
-  const apiKey = document.getElementById('api-key-input').value.trim();
-  const sbUrl = document.getElementById('sb-url-input').value.trim();
-  const sbKey = document.getElementById('sb-key-input').value.trim();
-  if (!apiKey) { alert('Anthropic API key zorunludur'); return; }
-  localStorage.setItem('archiAIKey', apiKey);
-  if (sbUrl) localStorage.setItem('sb_url', sbUrl);
-  if (sbKey) localStorage.setItem('sb_anon_key', sbKey);
-  closeSettings();
-  addMsg('ai', '✅ Ayarlar kaydedildi! Artık soru sorabilirsiniz.');
-}
-
-function openSettings() {
-  const s = getSettings();
-  document.getElementById('api-key-input').value = s.apiKey;
-  document.getElementById('sb-url-input').value = s.sbUrl;
-  document.getElementById('sb-key-input').value = s.sbKey;
-  document.getElementById('settings-panel').classList.add('open');
-}
-function closeSettings() { document.getElementById('settings-panel').classList.remove('open'); }
-
-function setMode(mode, btn) {
-  currentMode = mode;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  history = [];
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 110) + 'px';
-}
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-}
-function quickSend(text) {
-  document.getElementById('user-input').value = text;
-  sendMessage();
-}
-
-function addMsg(role, text, source) {
-  const wrap = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg ' + role;
-  const sourceHtml = source ? `<div class="source-badge">📚 ${source}</div><br>` : '';
-  if (role === 'user') {
-    div.innerHTML = `<div class="avatar user-av">A</div><div class="bubble">${text}</div>`;
-  } else {
-    div.innerHTML = `<div class="avatar ai-av">M</div><div><div class="bubble">${sourceHtml}${text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div></div>`;
-  }
-  wrap.appendChild(div);
-  wrap.scrollTop = wrap.scrollHeight;
-}
-
-function addTyping() {
-  const wrap = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg ai'; div.id = 'typing';
-  div.innerHTML = `<div class="avatar ai-av">M</div><div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-  wrap.appendChild(div);
-  wrap.scrollTop = wrap.scrollHeight;
-}
-
-async function neufertAra(soru) {
-  const s = getSettings();
-  if (!s.sbUrl || !s.sbKey) return null;
-  try {
-    const res = await fetch(`${s.sbUrl}/rest/v1/kitap_parcalari?select=kitap,bolum,icerik&limit=3`, {
-      headers: { 'apikey': s.sbKey, 'Authorization': `Bearer ${s.sbKey}` }
-    });
-    const data = await res.json();
-    if (!data || data.length === 0) return null;
-    const soruKucuk = soru.toLowerCase();
-    const eslesme = data.filter(k => 
-      k.bolum.toLowerCase().split(' ').some(w => soruKucuk.includes(w)) ||
-      k.icerik.toLowerCase().split(' ').some(w => w.length > 4 && soruKucuk.includes(w))
-    );
-    if (eslesme.length > 0) {
-      return eslesme.map(k => `[${k.kitap} - ${k.bolum}]\n${k.icerik}`).join('\n\n');
-    }
-    return data.map(k => `[${k.kitap} - ${k.bolum}]\n${k.icerik}`).join('\n\n');
-  } catch(e) { return null; }
-}
-
-async function sendMessage() {
-  const input = document.getElementById('user-input');
-  const text = input.value.trim();
-  if (!text) return;
-  const s = getSettings();
-  if (!s.apiKey) { openSettings(); return; }
-
-  input.value = ''; input.style.height = 'auto';
-  document.getElementById('send-btn').disabled = true;
-  addMsg('user', text);
-  addTyping();
-
-  const kaynak = await neufertAra(text);
-  let systemPrompt = MODES[currentMode];
-  let sourceLabel = null;
-
-  if (kaynak) {
-    systemPrompt += `\n\nAşağıdaki kaynak bilgisini kullanarak yanıt ver:\n\n${kaynak}`;
-    sourceLabel = 'Neufert & Kaynaklar';
-  }
-
-  history.push({ role: 'user', content: text });
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': s.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: history
-      })
-    });
-    const data = await res.json();
-    document.getElementById('typing')?.remove();
-    if (data.error) throw new Error(data.error.message);
-    const reply = data.content[0].text;
-    history.push({ role: 'assistant', content: reply });
-    if (history.length > 20) history = history.slice(-20);
-    addMsg('ai', reply, sourceLabel);
-  } catch(e) {
-    document.getElementById('typing')?.remove();
-    addMsg('ai', '❌ Hata: ' + e.message);
-  }
-  document.getElementById('send-btn').disabled = false;
-}
-</script>
 </body>
 </html>

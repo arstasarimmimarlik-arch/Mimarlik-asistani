@@ -1,0 +1,112 @@
+/* ========================================
+   Tema Değişkenleri - Light & Dark
+   ======================================== */
+
+:root {
+  /* Ana Renkler */
+  --green: #1D9E75;
+  --green-dark: #0F6E56;
+  --green-light: #E1F5EE;
+  --green-hover: #178A66;
+
+  /* Arka Plan */
+  --bg: #F7F7F5;
+  --bg-secondary: #EFEFED;
+  --white: #FFFFFF;
+
+  /* Metin */
+  --text: #1A1A1A;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+
+  /* Kenarlık */
+  --border: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.18);
+
+  /* Radius */
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --radius-full: 9999px;
+
+  /* Gölge */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+
+  /* Geçiş */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+
+  /* Toast Renkleri */
+  --toast-success: #1D9E75;
+  --toast-error: #E53E3E;
+  --toast-info: #3182CE;
+  --toast-warning: #D69E2E;
+
+  /* Kullanıcı Mesaj Balonu */
+  --user-bubble: var(--green-dark);
+  --user-bubble-text: #FFFFFF;
+
+  /* AI Mesaj Balonu */
+  --ai-bubble: var(--bg);
+  --ai-bubble-text: var(--text);
+
+  /* Kaynak Badge */
+  --source-bg: #E1F5EE;
+  --source-text: #0F6E56;
+
+  /* Chip */
+  --chip-bg: var(--green-light);
+  --chip-text: var(--green-dark);
+  --chip-border: var(--green);
+
+  /* Font Size (yazı boyutu ayarı için) */
+  --font-size-base: 14px;
+  --font-size-sm: 12px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+
+  /* Dokunma hedefi */
+  --touch-target: 44px;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+  --green: #2BBF8A;
+  --green-dark: #1D9E75;
+  --green-light: #1A3A2F;
+  --green-hover: #34D49A;
+
+  --bg: #1A1A1A;
+  --bg-secondary: #242424;
+  --white: #1E1E1E;
+
+  --text: #E8E8E8;
+  --text-secondary: #A0A0A0;
+  --text-tertiary: #707070;
+
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.18);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
+
+  --user-bubble: #2BBF8A;
+  --user-bubble-text: #1A1A1A;
+
+  --ai-bubble: #242424;
+  --ai-bubble-text: #E8E8E8;
+
+  --source-bg: #1A3A2F;
+  --source-text: #2BBF8A;
+
+  --chip-bg: #1A3A2F;
+  --chip-text: #2BBF8A;
+  --chip-border: #2BBF8A;
+}
+
+/* Yazı Boyutu Ayarları */
+[data-fontsize="small"] { --font-size-base: 13px; --font-size-sm: 11px; }
+[data-fontsize="large"] { --font-size-base: 16px; --font-size-sm: 14px; }

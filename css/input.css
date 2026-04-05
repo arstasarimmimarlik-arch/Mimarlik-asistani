@@ -1,0 +1,134 @@
+/* ========================================
+   Input Alanı & Gönder Butonu
+   ======================================== */
+
+#input-wrap {
+  padding: 10px 14px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+  background: var(--white);
+}
+
+#user-input {
+  flex: 1;
+  border: 1.5px solid var(--border);
+  border-radius: 22px;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-family: inherit;
+  resize: none;
+  background: var(--bg);
+  color: var(--text);
+  min-height: var(--touch-target);
+  max-height: 110px;
+  outline: none;
+  line-height: 1.4;
+  transition: border-color var(--transition-fast);
+}
+#user-input:focus {
+  border-color: var(--green);
+}
+#user-input::placeholder {
+  color: var(--text-tertiary);
+}
+#user-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Karakter Sayacı */
+#char-count {
+  position: absolute;
+  right: 70px;
+  bottom: 24px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  display: none;
+}
+#char-count.visible {
+  display: block;
+}
+#char-count.warning {
+  color: var(--toast-warning);
+}
+#char-count.error {
+  color: var(--toast-error);
+}
+
+/* Gönder Butonu */
+#send-btn {
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border-radius: 50%;
+  background: var(--green);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--transition-fast), transform 0.1s;
+}
+#send-btn:active {
+  transform: scale(0.93);
+  background: var(--green-dark);
+}
+#send-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: white;
+}
+#send-btn:disabled {
+  background: var(--border);
+  cursor: not-allowed;
+}
+
+/* Mikrofon Butonu */
+#mic-btn {
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+#mic-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+#mic-btn.recording {
+  background: var(--toast-error);
+  border-color: var(--toast-error);
+  color: white;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* Offline Banner */
+#offline-banner {
+  display: none;
+  padding: 8px 14px;
+  background: var(--toast-warning);
+  color: white;
+  font-size: var(--font-size-sm);
+  text-align: center;
+  font-weight: 500;
+}
+#offline-banner.visible {
+  display: block;
+}

@@ -1,0 +1,103 @@
+/* ========================================
+   Responsive & Tablet/Desktop
+   ======================================== */
+
+/* Tablet (>480px) */
+@media (min-width: 481px) {
+  #app {
+    max-width: 520px;
+    margin-top: 0;
+    border-radius: 0;
+  }
+}
+
+/* Desktop (>768px) */
+@media (min-width: 769px) {
+  #app {
+    max-width: 600px;
+    height: 90dvh;
+    margin-top: 5dvh;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .bubble {
+    max-width: 75%;
+  }
+
+  .welcome-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Large Desktop (>1200px) */
+@media (min-width: 1201px) {
+  #app {
+    max-width: 700px;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  #mode-bar {
+    padding: 6px 14px;
+  }
+  .mode-btn {
+    padding: 4px 12px;
+    min-height: 36px;
+  }
+  #messages {
+    padding: 8px 14px;
+    gap: 6px;
+  }
+  #input-wrap {
+    padding: 6px 14px;
+  }
+}
+
+/* Çok küçük ekranlar */
+@media (max-width: 350px) {
+  .bubble {
+    max-width: 90%;
+    padding: 8px 12px;
+  }
+  .welcome-cards {
+    grid-template-columns: 1fr;
+  }
+  #header {
+    padding: 10px 12px;
+  }
+  #mode-bar {
+    padding: 8px 10px;
+  }
+}
+
+/* Print */
+@media print {
+  #header, #mode-bar, #input-wrap, #settings-panel, #history-panel,
+  #onboarding, .msg-actions, #scroll-bottom, #stop-btn, #toast-container,
+  .chips, #offline-banner, #mic-btn {
+    display: none !important;
+  }
+  #app {
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+    box-shadow: none;
+  }
+  #messages {
+    overflow: visible;
+    height: auto;
+  }
+  .msg {
+    break-inside: avoid;
+  }
+}
+
+/* Reduce Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
