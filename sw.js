@@ -1,8 +1,8 @@
 /* ========================================
-   Service Worker - Cache & Offline
+   Service Worker - Network First Cache
    ======================================== */
 
-const CACHE_NAME = 'mimarlik-ai-v2.0.0';
+const CACHE_NAME = 'mimarlik-ai-v3.0.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -31,6 +31,7 @@ const STATIC_ASSETS = [
   './js/speech.js',
   './js/supabase.js',
   './js/theme.js',
+  './js/toast.js',
 ];
 
 // Install: Statik dosyaları cache'le
@@ -53,7 +54,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: Strateji seçimi
+// Fetch: Network first, cache fallback
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
@@ -72,31 +73,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Statik dosyalar → Cache first, fallback to network
+  // Statik dosyalar → Network first, cache fallback
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) {
-        // Arka planda güncelle (stale-while-revalidate)
-        fetch(event.request).then(response => {
-          if (response && response.ok) {
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, response);
-            });
-          }
-        }).catch(() => {});
-        return cached;
+    fetch(event.request).then(response => {
+      if (response && response.ok) {
+        const cloned = response.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, cloned);
+        });
       }
-
-      return fetch(event.request).then(response => {
-        if (response && response.ok) {
-          const cloned = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, cloned);
-          });
-        }
-        return response;
-      }).catch(() => {
-        // Offline fallback
+      return response;
+    }).catch(() => {
+      return caches.match(event.request).then(cached => {
+        if (cached) return cached;
         if (event.request.destination === 'document') {
           return caches.match('./index.html');
         }

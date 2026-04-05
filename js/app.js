@@ -18,7 +18,7 @@ import {
   removeTypingIndicator, clearMessages, addWelcomeMessage,
   addWelcomeCards, createStreamingBubble, updateStreamingContent,
   finalizeStreamingMessage, removeStreamingMessage, scrollToBottom,
-  loadChatMessages
+  loadChatMessages, setModeChangeCallback
 } from './chat.js';
 import { sendStreamingMessage, stopGeneration, isGenerating } from './api.js';
 import {
@@ -31,35 +31,18 @@ import { initTheme, toggleDarkMode } from './theme.js';
 import { initSpeech, toggleListening, isSpeechSupported, getListeningState } from './speech.js';
 import { downloadTxt, downloadPdf, copyToClipboard } from './export.js';
 import { initPWA, promptInstall, canInstall } from './pwa.js';
+import { showToast } from './toast.js';
+
+// Re-export for backward compatibility (diğer modüller hâlâ app.js'den import edebilir)
+export { showToast };
 
 // ========== DURUM ==========
 let currentMode = 'genel';
 let currentChat = null;
 let isSending = false;
+const modeChats = {}; // Her mod için ayrı sohbet tutar
 
-const APP_VERSION = '2.0.0';
-
-// ========== TOAST ==========
-export function showToast(message, type = 'info') {
-  const container = document.getElementById('toast-container');
-  if (!container) return;
-
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-
-  const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
-
-  toast.innerHTML = `
-    <span class="toast-icon">${icons[type] || icons.info}</span>
-    <span class="toast-message">${message}</span>
-    <button class="toast-close" aria-label="Kapat">✕</button>
-  `;
-
-  toast.querySelector('.toast-close').addEventListener('click', () => toast.remove());
-
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
+const APP_VERSION = '2.0.1';
 
 // ========== MOD YÖNETİMİ ==========
 function renderModes() {
@@ -82,26 +65,27 @@ function renderModes() {
 async function handleModeChange(newMode) {
   if (newMode === currentMode) return;
 
-  // Mevcut sohbette mesaj varsa onay sor
-  if (currentChat && currentChat.messages.length > 0) {
-    const confirmed = await showConfirmModal(
-      'Mod Değişikliği',
-      'Yeni mod seçilirse yeni bir sohbet başlayacak. Mevcut sohbet kaydedilecek. Devam etmek istiyor musunuz?'
-    );
-    if (!confirmed) return;
-
-    // Mevcut sohbeti kaydet
-    await saveChat(currentChat);
+  // Mevcut sohbeti mod bazında sakla
+  if (currentChat) {
+    modeChats[currentMode] = currentChat;
+    if (currentChat.messages.length > 0) {
+      saveChat(currentChat);
+    }
   }
 
   currentMode = newMode;
 
-  // Yeni sohbet başlat
-  currentChat = createChat(currentMode);
-
-  clearMessages();
-  addWelcomeMessage(getModeSuggestions(currentMode));
-  addWelcomeCards();
+  // Bu modda önceki sohbet varsa geri yükle
+  if (modeChats[newMode] && modeChats[newMode].messages.length > 0) {
+    currentChat = modeChats[newMode];
+    loadChatMessages(currentChat.messages);
+  } else {
+    currentChat = createChat(currentMode);
+    modeChats[newMode] = currentChat;
+    clearMessages();
+    addWelcomeMessage(getModeSuggestions(currentMode));
+    addWelcomeCards(currentMode);
+  }
 
   renderModes();
 }
@@ -113,7 +97,6 @@ async function sendMessage() {
   const input = document.getElementById('user-input');
   const text = input.value.trim();
 
-  // Validasyon
   const validation = validateInput(text);
   if (!validation.valid) {
     if (validation.error === 'tooLong') {
@@ -122,7 +105,6 @@ async function sendMessage() {
     return;
   }
 
-  // API key kontrolü
   const s = getSettings();
   if (!s.apiKey) {
     openSettingsPanel();
@@ -130,7 +112,6 @@ async function sendMessage() {
     return;
   }
 
-  // Online kontrolü
   if (!getOnlineStatus()) {
     showToast(t('networkError'), 'error');
     return;
@@ -142,74 +123,72 @@ async function sendMessage() {
   document.getElementById('send-btn').disabled = true;
   updateCharCount('');
 
-  // Sohbet yoksa oluştur
   if (!currentChat) {
     currentChat = createChat(currentMode);
   }
 
-  // Kullanıcı mesajını ekle
   addUserMessage(validation.text);
   currentChat.messages.push({ role: 'user', content: validation.text });
-
-  // İstatistik
   trackMessage(currentMode);
 
-  // Durdur butonunu göster
   const stopBtn = document.getElementById('stop-btn');
   if (stopBtn) stopBtn.classList.add('visible');
 
   let streamBubble = null;
   let currentSource = null;
+  let accumulatedText = '';
 
   await sendStreamingMessage(
     validation.text,
     currentMode,
-    currentChat.messages.slice(0, -1), // Geçmiş (son mesaj hariç)
+    currentChat.messages.slice(0, -1),
     {
       onStart: () => {
         addTypingIndicator();
+        accumulatedText = '';
       },
+
       onSource: (label, results) => {
         currentSource = label;
       },
-      onChunk: (chunk, fullText) => {
+
+      onChunk: (chunk, fullTextFromApi) => {
+        // chunk'ı yerel olarak biriktir — api.js'deki fullText'e güvenme
+        accumulatedText += chunk;
         removeTypingIndicator();
         if (!streamBubble) {
           streamBubble = createStreamingBubble(currentSource);
         }
-        updateStreamingContent(streamBubble.contentEl, fullText);
+        updateStreamingContent(streamBubble.contentEl, accumulatedText);
       },
-      onDone: (fullText, sourceLabel, stopped) => {
+
+      onDone: (fullTextFromApi, sourceLabel, stopped) => {
         removeTypingIndicator();
 
-        if (streamBubble) {
-          // Streaming tamamlandı - aksiyonları ekle
-          if (fullText) {
-            finalizeStreamingMessage(streamBubble.wrapEl, fullText, {
-              mode: currentMode,
-              chatId: currentChat?.id
-            });
-            currentChat.messages.push({ role: 'assistant', content: fullText, source: sourceLabel });
-          }
-        } else if (fullText) {
-          // Streaming olmadan geldi
-          addAiMessage(fullText, sourceLabel, {
+        const finalText = accumulatedText || fullTextFromApi || '';
+
+        if (streamBubble && finalText) {
+          finalizeStreamingMessage(streamBubble.wrapEl, finalText, {
             mode: currentMode,
             chatId: currentChat?.id
           });
-          currentChat.messages.push({ role: 'assistant', content: fullText, source: sourceLabel });
+          currentChat.messages.push({ role: 'assistant', content: finalText, source: sourceLabel });
+        } else if (finalText) {
+          addAiMessage(finalText, sourceLabel, {
+            mode: currentMode,
+            chatId: currentChat?.id
+          });
+          currentChat.messages.push({ role: 'assistant', content: finalText, source: sourceLabel });
         }
 
         if (stopped) {
           showToast('Yanıt durduruldu', 'info');
         }
 
-        // Geçmişi sınırla
         if (currentChat.messages.length > 40) {
           currentChat.messages = currentChat.messages.slice(-40);
         }
 
-        // Kaydet
         saveChat(currentChat);
 
         isSending = false;
@@ -217,10 +196,12 @@ async function sendMessage() {
         if (stopBtn) stopBtn.classList.remove('visible');
         streamBubble = null;
       },
-      onError: (err) => {
+
+      onError: (errorMessage) => {
+        // errorMessage artık doğrudan string (api.js'den)
         removeTypingIndicator();
         removeStreamingMessage();
-        addAiMessage(`❌ ${err.message}`, null);
+        showToast(errorMessage || 'Bir hata oluştu.', 'error');
 
         isSending = false;
         document.getElementById('send-btn').disabled = false;
@@ -280,7 +261,6 @@ async function openHistoryPanel() {
         </div>
       `;
 
-      // Silme butonu
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'history-item-delete';
       deleteBtn.setAttribute('aria-label', t('deleteChat'));
@@ -299,7 +279,6 @@ async function openHistoryPanel() {
       });
       item.appendChild(deleteBtn);
 
-      // Sohbeti aç
       item.addEventListener('click', async () => {
         const loaded = await getChat(chat.id);
         if (loaded) {
@@ -387,11 +366,9 @@ function showOnboarding() {
     onboarding.querySelector('.onboarding-title').textContent = t(s.titleKey);
     onboarding.querySelector('.onboarding-desc').textContent = t(s.descKey);
 
-    // Dots
     const dots = onboarding.querySelectorAll('.onboarding-dot');
     dots.forEach((d, i) => d.classList.toggle('active', i === step));
 
-    // Butonlar
     const nextBtn = onboarding.querySelector('.onboarding-next');
     nextBtn.textContent = step === steps.length - 1 ? t('start') : t('next');
   }
@@ -452,7 +429,7 @@ function startNewChat() {
   currentChat = createChat(currentMode);
   clearMessages();
   addWelcomeMessage(getModeSuggestions(currentMode));
-  addWelcomeCards();
+  addWelcomeCards(currentMode);
 }
 
 // ========== YARDIMCI ==========
@@ -489,51 +466,36 @@ function updateNetworkStatus(online) {
 }
 
 function updateUI() {
-  // Header
   document.getElementById('header-title').textContent = t('appTitle');
 
-  // Input placeholder
   const input = document.getElementById('user-input');
   if (input) input.placeholder = t('inputPlaceholder');
 
-  // Modları yeniden render
   renderModes();
 }
 
 // ========== BAŞLATMA ==========
 async function init() {
-  // Tema ve font uygula
   initTheme();
   applyFontSize();
 
-  // IndexedDB başlat
   try {
     await initDB();
   } catch (e) {
     console.error('DB init hatası:', e);
   }
 
-  // Ağ dinleme
   initNetwork(updateNetworkStatus);
-
-  // Supabase durum dinleme
   onSupabaseStatusChange(updateConnectionStatus);
-
-  // Chat modülü başlat
   initChat();
-
-  // Modları render et
+  setModeChangeCallback(handleModeChange);
   renderModes();
-
-  // UI güncelle
   updateUI();
 
-  // Yeni sohbet başlat
   currentChat = createChat(currentMode);
   addWelcomeMessage(getModeSuggestions(currentMode));
-  addWelcomeCards();
+  addWelcomeCards(currentMode);
 
-  // Supabase bağlantı kontrolü
   checkConnection();
 
   // Speech
@@ -544,9 +506,6 @@ async function init() {
         if (input) {
           input.value = transcript;
           autoResize(input);
-          if (isFinal) {
-            // Otomatik gönderme yok, kullanıcı onaylasın
-          }
         }
       },
       (listening) => {
@@ -562,20 +521,16 @@ async function init() {
     if (micBtn) micBtn.style.display = 'none';
   }
 
-  // PWA
   initPWA();
 
-  // Onboarding
   if (!isOnboarded()) {
     showOnboarding();
   }
 
   // ========== EVENT LISTENERS ==========
 
-  // Gönder butonu
   document.getElementById('send-btn')?.addEventListener('click', sendMessage);
 
-  // Enter tuşu
   document.getElementById('user-input')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -583,28 +538,24 @@ async function init() {
     }
   });
 
-  // Auto resize & char count
   document.getElementById('user-input')?.addEventListener('input', (e) => {
     autoResize(e.target);
     updateCharCount(e.target.value);
   });
 
-  // Durdur butonu
   document.getElementById('stop-btn')?.addEventListener('click', () => {
     stopGeneration();
   });
 
-  // Ayarlar
+  document.getElementById('home-btn')?.addEventListener('click', () => handleModeChange('genel'));
   document.getElementById('settings-btn')?.addEventListener('click', openSettingsPanel);
   document.getElementById('back-btn')?.addEventListener('click', closeSettingsPanel);
   document.getElementById('save-settings-btn')?.addEventListener('click', saveSettingsFromForm);
 
-  // Dark mode toggle
   document.getElementById('dark-mode-toggle')?.addEventListener('change', (e) => {
     setTheme(e.target.checked ? 'dark' : 'light');
   });
 
-  // Font size
   document.querySelectorAll('.fontsize-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.fontsize-btn').forEach(b => b.classList.remove('active'));
@@ -613,7 +564,6 @@ async function init() {
     });
   });
 
-  // Dil seçimi
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
@@ -624,7 +574,6 @@ async function init() {
     });
   });
 
-  // Geçmiş paneli
   document.getElementById('history-btn')?.addEventListener('click', openHistoryPanel);
   document.getElementById('history-back-btn')?.addEventListener('click', closeHistoryPanel);
   document.getElementById('new-chat-btn')?.addEventListener('click', () => {
@@ -632,15 +581,12 @@ async function init() {
     closeHistoryPanel();
   });
 
-  // Geçmiş arama
   document.getElementById('history-search')?.addEventListener('input', debounce(async (e) => {
     const query = e.target.value.trim();
     const list = document.getElementById('history-list');
     if (!list) return;
 
     const chats = query ? await searchChats(query) : await listChats();
-    // Basit re-render (performans için optimize edilebilir)
-    // openHistoryPanel zaten render ediyor, burada kısa yol
     list.innerHTML = '';
     if (chats.length === 0) {
       list.innerHTML = `<div class="history-empty">${t('noHistory')}</div>`;
@@ -669,16 +615,13 @@ async function init() {
     }
   }, 300));
 
-  // Favoriler
   document.getElementById('favorites-btn')?.addEventListener('click', openFavoritesPanel);
   document.getElementById('favorites-back-btn')?.addEventListener('click', closeFavoritesPanel);
 
-  // Mikrofon
   document.getElementById('mic-btn')?.addEventListener('click', () => {
     toggleListening();
   });
 
-  // Dışa aktarma
   document.getElementById('export-txt-btn')?.addEventListener('click', () => {
     if (currentChat) downloadTxt(currentChat);
   });
@@ -686,7 +629,6 @@ async function init() {
     if (currentChat) downloadPdf(currentChat);
   });
 
-  // API key silme
   document.getElementById('delete-apikey-btn')?.addEventListener('click', async () => {
     const confirmed = await showConfirmModal('API Key Sil', 'API anahtarınız silinecek. Emin misiniz?');
     if (confirmed) {
@@ -696,7 +638,6 @@ async function init() {
     }
   });
 
-  // Tüm verileri sil
   document.getElementById('clear-all-btn')?.addEventListener('click', async () => {
     const confirmed = await showConfirmModal(
       'Tüm Verileri Sil',
@@ -711,10 +652,8 @@ async function init() {
     }
   });
 
-  // Install PWA
   document.getElementById('install-btn')?.addEventListener('click', promptInstall);
 
-  // Escape ile panelleri kapat
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeSettingsPanel();
@@ -727,12 +666,10 @@ async function init() {
     }
   });
 
-  // Version bilgisi
   const versionEl = document.getElementById('app-version');
   if (versionEl) versionEl.textContent = `v${APP_VERSION}`;
 
   console.log(`Mimarlık AI Asistanı v${APP_VERSION} başlatıldı`);
 }
 
-// Uygulama başlat
 document.addEventListener('DOMContentLoaded', init);

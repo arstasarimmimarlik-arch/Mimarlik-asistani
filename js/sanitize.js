@@ -43,7 +43,9 @@ function isSafeUrl(url) {
 export function sanitizeHtml(html) {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const clean = sanitizeNode(doc.body);
-  return clean.innerHTML;
+  const wrapper = document.createElement('div');
+  wrapper.appendChild(clean);
+  return wrapper.innerHTML;
 }
 
 function sanitizeNode(node) {
@@ -111,7 +113,8 @@ export function validateInput(text, maxLength = 5000) {
 // API Key format doğrulama
 export function validateApiKey(key) {
   if (!key) return false;
-  return key.startsWith('sk-ant-');
+  // sk-ant- (eski format) veya sk- (yeni format) kabul et
+  return key.startsWith('sk-');
 }
 
 // Supabase URL format doğrulama

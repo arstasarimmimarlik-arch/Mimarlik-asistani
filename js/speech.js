@@ -3,7 +3,7 @@
    ======================================== */
 
 import { t, getLanguage } from './i18n.js';
-import { showToast } from './app.js';
+import { showToast } from './toast.js';
 
 let recognition = null;
 let isListening = false;

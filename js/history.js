@@ -141,8 +141,8 @@ export async function searchChats(query) {
   const chats = await listChats();
   const q = query.toLowerCase();
   return chats.filter(chat => {
-    if (chat.title.toLowerCase().includes(q)) return true;
-    return chat.messages.some(m => m.content.toLowerCase().includes(q));
+    if (chat.title?.toLowerCase().includes(q)) return true;
+    return chat.messages.some(m => m.content?.toLowerCase().includes(q));
   });
 }
 

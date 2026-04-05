@@ -1,112 +1,167 @@
 /* ========================================
-   Tema Değişkenleri - Light & Dark
+   Tema — ARS Tasarım Mimarlık Tarzı
    ======================================== */
 
 :root {
-  /* Ana Renkler */
-  --green: #1D9E75;
-  --green-dark: #0F6E56;
-  --green-light: #E1F5EE;
-  --green-hover: #178A66;
+  /* Ana Renkler — koyu lüks ton */
+  --green: #C9A96E;
+  --green-dark: #1A1A1A;
+  --green-light: #F5F0E8;
+  --green-hover: #B8944F;
+  --accent: #C9A96E;
 
   /* Arka Plan */
-  --bg: #F7F7F5;
-  --bg-secondary: #EFEFED;
+  --bg: #F5F4F2;
+  --bg-secondary: #EDECE9;
+  --bg-tertiary: #E5E3E0;
   --white: #FFFFFF;
 
   /* Metin */
   --text: #1A1A1A;
-  --text-secondary: #666666;
-  --text-tertiary: #999999;
+  --text-secondary: #4A4744;
+  --text-tertiary: #8A8580;
 
   /* Kenarlık */
-  --border: rgba(0, 0, 0, 0.1);
-  --border-strong: rgba(0, 0, 0, 0.18);
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.12);
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+  --space-4xl: 48px;
 
   /* Radius */
-  --radius: 16px;
-  --radius-sm: 10px;
-  --radius-xs: 6px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --radius-full: 9999px;
 
   /* Gölge */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.07);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.09);
 
   /* Geçiş */
   --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Toast Renkleri */
-  --toast-success: #1D9E75;
-  --toast-error: #E53E3E;
-  --toast-info: #3182CE;
-  --toast-warning: #D69E2E;
+  /* Toast */
+  --toast-success: #2D6A4F;
+  --toast-error: #C53030;
+  --toast-info: #2B6CB0;
+  --toast-warning: #B7791F;
 
-  /* Kullanıcı Mesaj Balonu */
-  --user-bubble: var(--green-dark);
-  --user-bubble-text: #FFFFFF;
-
-  /* AI Mesaj Balonu */
-  --ai-bubble: var(--bg);
+  /* Mesaj Balonları */
+  --user-bubble: #1A1A1A;
+  --user-bubble-text: #F5F5F5;
+  --ai-bubble: #FFFFFF;
   --ai-bubble-text: var(--text);
 
-  /* Kaynak Badge */
-  --source-bg: #E1F5EE;
-  --source-text: #0F6E56;
+  /* Avatar */
+  --avatar-user-bg: #E8DFD0;
+  --avatar-user-text: #1A1A1A;
+  --avatar-ai-bg: #EDECE9;
+  --avatar-ai-text: #4A4744;
+
+  /* Kaynak */
+  --source-bg: #F5F0E8;
+  --source-text: #8A6D3B;
 
   /* Chip */
-  --chip-bg: var(--green-light);
-  --chip-text: var(--green-dark);
-  --chip-border: var(--green);
+  --chip-bg: transparent;
+  --chip-text: var(--text-secondary);
+  --chip-border: var(--border-strong);
 
-  /* Font Size (yazı boyutu ayarı için) */
+  /* Kod */
+  --code-bg: #F5F4F2;
+  --code-text: #1A1A1A;
+  --code-header-bg: #EDECE9;
+  --code-header-text: #4A4744;
+
+  /* Bilgi/Tehlike */
+  --info-bg: #FFFBEB;
+  --info-border: #F0DCA0;
+  --info-text: #7C5E10;
+  --danger-bg: #FFF5F5;
+  --danger-border: #FED7D7;
+  --danger-text: #C53030;
+  --danger-hover-bg: #FEE2E2;
+
+  /* Font */
   --font-size-base: 14px;
   --font-size-sm: 12px;
   --font-size-lg: 16px;
   --font-size-xl: 18px;
-
-  /* Dokunma hedefi */
   --touch-target: 44px;
 }
 
-/* Dark Mode */
+/* Dark Mode — ARS Tasarım koyu tema */
 [data-theme="dark"] {
-  --green: #2BBF8A;
-  --green-dark: #1D9E75;
-  --green-light: #1A3A2F;
-  --green-hover: #34D49A;
+  --green: #C9A96E;
+  --green-dark: #C9A96E;
+  --green-light: #2A2520;
+  --green-hover: #D4B87A;
+  --accent: #C9A96E;
 
-  --bg: #1A1A1A;
-  --bg-secondary: #242424;
-  --white: #1E1E1E;
+  --bg: #141414;
+  --bg-secondary: #1C1C1C;
+  --bg-tertiary: #262626;
+  --white: #1A1A1A;
 
-  --text: #E8E8E8;
-  --text-secondary: #A0A0A0;
-  --text-tertiary: #707070;
+  --text: #F0EDE8;
+  --text-secondary: #A8A29E;
+  --text-tertiary: #706A64;
 
-  --border: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.18);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.10);
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.20);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.45);
 
-  --user-bubble: #2BBF8A;
+  --user-bubble: #C9A96E;
   --user-bubble-text: #1A1A1A;
+  --ai-bubble: #1C1C1C;
+  --ai-bubble-text: #F0EDE8;
 
-  --ai-bubble: #242424;
-  --ai-bubble-text: #E8E8E8;
+  --avatar-user-bg: #2A2520;
+  --avatar-user-text: #C9A96E;
+  --avatar-ai-bg: #262626;
+  --avatar-ai-text: #A8A29E;
 
-  --source-bg: #1A3A2F;
-  --source-text: #2BBF8A;
+  --source-bg: #2A2520;
+  --source-text: #C9A96E;
 
-  --chip-bg: #1A3A2F;
-  --chip-text: #2BBF8A;
-  --chip-border: #2BBF8A;
+  --chip-bg: transparent;
+  --chip-text: var(--text-secondary);
+  --chip-border: var(--border-strong);
+
+  --code-bg: #262626;
+  --code-text: #D4D4D4;
+  --code-header-bg: #303030;
+  --code-header-text: #A8A29E;
+
+  --info-bg: #2A2518;
+  --info-border: #4A3F20;
+  --info-text: #E8D5A0;
+  --danger-bg: #2A1818;
+  --danger-border: #4A2020;
+  --danger-text: #FCA5A5;
+  --danger-hover-bg: #3A2020;
 }
 
-/* Yazı Boyutu Ayarları */
 [data-fontsize="small"] { --font-size-base: 13px; --font-size-sm: 11px; }
 [data-fontsize="large"] { --font-size-base: 16px; --font-size-sm: 14px; }

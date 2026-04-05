@@ -4,7 +4,6 @@
 
 import { t } from './i18n.js';
 
-// Ağ durumu
 let isOnline = navigator.onLine;
 let onStatusChange = null;
 
@@ -29,11 +28,15 @@ export function getOnlineStatus() {
 // API hata sınıflandırma
 export function classifyError(status, error) {
   if (!isOnline) return { type: 'network', message: t('networkError'), retryable: true };
+  if (status === 400) return { type: 'badRequest', message: error?.message || 'Geçersiz istek formatı', retryable: false };
   if (status === 401) return { type: 'auth', message: t('apiKeyInvalid'), retryable: false };
+  if (status === 403) return { type: 'forbidden', message: error?.message || 'Erişim reddedildi', retryable: false };
   if (status === 429) return { type: 'rateLimit', message: t('rateLimitError'), retryable: true };
   if (status >= 500) return { type: 'server', message: t('serverError'), retryable: true };
   if (error?.name === 'AbortError') return { type: 'timeout', message: t('timeoutError'), retryable: true };
-  return { type: 'unknown', message: error?.message || t('unknownError'), retryable: false };
+
+  const msg = (error?.message && error.message !== 'undefined') ? error.message : t('unknownError');
+  return { type: 'unknown', message: msg, retryable: false };
 }
 
 // Exponential backoff ile retry
@@ -42,16 +45,14 @@ export async function fetchWithRetry(url, options, maxRetries = 3, timeoutMs = 3
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     if (attempt > 0) {
-      const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
+      const delay = Math.pow(2, attempt) * 1000;
       await new Promise(r => setTimeout(r, delay));
     }
 
     try {
-      // AbortController ile timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-      // Eğer dışarıdan signal verilmişse, onu da dinle
       if (options.signal) {
         options.signal.addEventListener('abort', () => controller.abort());
       }
@@ -67,14 +68,12 @@ export async function fetchWithRetry(url, options, maxRetries = 3, timeoutMs = 3
         return response;
       }
 
-      // 5xx hata - retry
       lastError = { status: response.status };
       if (attempt === maxRetries) return response;
 
     } catch (err) {
       lastError = err;
       if (err.name === 'AbortError' && options.signal?.aborted) {
-        // Kullanıcı tarafından iptal edildi, retry yapma
         throw err;
       }
       if (attempt === maxRetries) throw err;

@@ -3,30 +3,15 @@
    ======================================== */
 
 import { t } from './i18n.js';
-import { showToast } from './app.js';
+import { showToast } from './toast.js';
 
 let deferredPrompt = null;
 
 export function initPWA() {
-  // Service Worker kayıt
+  // SW ve cache temizliği — production'da SW register edilecek
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => {
-        console.log('SW registered:', reg.scope);
-
-        // Güncelleme kontrolü
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'activated') {
-              showToast('Yeni güncelleme yüklendi. Sayfayı yenileyin.', 'info');
-            }
-          });
-        });
-      })
-      .catch(err => {
-        console.warn('SW registration failed:', err);
-      });
+    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
   }
 
   // Install prompt yakalama
@@ -42,7 +27,6 @@ export function initPWA() {
                               window.navigator.standalone === true;
 
   if (isIos && !isInStandaloneMode) {
-    // iOS'ta install prompt yok, kullanıcıya yönlendirme göster
     const shown = sessionStorage.getItem('ios_install_shown');
     if (!shown) {
       setTimeout(() => {
@@ -54,7 +38,6 @@ export function initPWA() {
 }
 
 function showInstallButton() {
-  // Header'da install butonu göster (varsa)
   const installBtn = document.getElementById('install-btn');
   if (installBtn) {
     installBtn.style.display = 'flex';

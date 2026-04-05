@@ -4,7 +4,7 @@
 
 import { t, setLanguage, getLanguage } from './i18n.js';
 import { validateApiKey, validateSupabaseUrl, maskApiKey } from './sanitize.js';
-import { showToast } from './app.js';
+import { showToast } from './toast.js';
 
 const KEYS = {
   apiKey: 'archiAIKey',
@@ -204,27 +204,4 @@ export function saveSettingsFromForm() {
   closeSettingsPanel();
   showToast(t('settingsSaved'), 'success');
   return true;
-}
-
-// API Key doğrulama (basit API çağrısı ile)
-export async function verifyApiKey(apiKey) {
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1,
-        messages: [{ role: 'user', content: 'test' }]
-      })
-    });
-    return res.status !== 401;
-  } catch {
-    return false;
-  }
 }

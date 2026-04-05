@@ -62,9 +62,9 @@
 }
 .md-content pre code {
   display: block;
-  padding: 12px 14px;
-  background: #1E1E1E;
-  color: #D4D4D4;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--code-bg);
+  color: var(--code-text);
   font-size: 13px;
   line-height: 1.5;
   overflow-x: auto;
@@ -76,15 +76,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #2D2D2D;
-  padding: 6px 12px;
+  background: var(--code-header-bg);
+  padding: var(--space-sm) var(--space-md);
   font-size: 11px;
-  color: #A0A0A0;
+  color: var(--code-header-text);
 }
 .code-copy-btn {
   background: none;
   border: none;
-  color: #A0A0A0;
+  color: var(--code-header-text);
   cursor: pointer;
   font-size: 12px;
   padding: 2px 8px;

@@ -11,64 +11,69 @@
   }
 }
 
+/* Tablet landscape (>640px) */
+@media (min-width: 641px) {
+  #app {
+    max-width: 580px;
+  }
+  .bubble {
+    max-width: 78%;
+  }
+}
+
 /* Desktop (>768px) */
 @media (min-width: 769px) {
   #app {
-    max-width: 600px;
+    max-width: 620px;
     height: 90dvh;
     margin-top: 5dvh;
-    border-radius: var(--radius);
+    border-radius: var(--radius-lg);
     overflow: hidden;
+    box-shadow: var(--shadow-xl);
   }
 
   .bubble {
     max-width: 75%;
   }
 
-  .welcome-cards {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 /* Large Desktop (>1200px) */
 @media (min-width: 1201px) {
   #app {
-    max-width: 700px;
+    max-width: 720px;
   }
 }
 
 /* Landscape Mobile */
 @media (max-height: 500px) and (orientation: landscape) {
   #mode-bar {
-    padding: 6px 14px;
+    padding: var(--space-sm) var(--space-lg);
   }
   .mode-btn {
-    padding: 4px 12px;
+    padding: var(--space-xs) var(--space-md);
     min-height: 36px;
   }
   #messages {
-    padding: 8px 14px;
-    gap: 6px;
+    padding: var(--space-sm) var(--space-lg);
+    gap: var(--space-sm);
   }
   #input-wrap {
-    padding: 6px 14px;
+    padding: var(--space-sm) var(--space-lg);
   }
 }
 
-/* Çok küçük ekranlar */
+/* Cok kucuk ekranlar */
 @media (max-width: 350px) {
   .bubble {
     max-width: 90%;
-    padding: 8px 12px;
-  }
-  .welcome-cards {
-    grid-template-columns: 1fr;
+    padding: var(--space-sm) var(--space-md);
   }
   #header {
-    padding: 10px 12px;
+    padding: var(--space-md);
   }
   #mode-bar {
-    padding: 8px 10px;
+    padding: var(--space-sm) var(--space-md);
   }
 }
 
